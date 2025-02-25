@@ -22,6 +22,7 @@ type Message struct {
 type Conversation struct {
 	ProjectName    string
 	InspectionDate string
+	DirExisStatus  string
 	CorpMessage    []*Message
 }
 
@@ -29,12 +30,14 @@ type ConversationHandler struct {
 	reProjectName    *regexp.Regexp
 	reInspectionDate *regexp.Regexp
 	reCorpMessage    *regexp.Regexp
+	reDirExisStatus  *regexp.Regexp
 }
 
 func NewConversationHandler() *ConversationHandler {
 	return &ConversationHandler{
 		reProjectName:    regexp.MustCompile(`\*\*项目名称：.*>(.*?)</font>`),
 		reInspectionDate: regexp.MustCompile(`\*\*巡检时间：.*>(.*?)</font>`),
+		reDirExisStatus:  regexp.MustCompile(`\*\*数据目录状态.*>(.*?)</font>`),
 		reCorpMessage:    regexp.MustCompile(`> 企业名称：.*>(.*?)</font>\s*> 当前拉取会话数：.*>(\d+)</font>\s*> 昨天拉取会话数：.*>(\d+)</font>`),
 	}
 }
@@ -47,6 +50,8 @@ func (c *ConversationHandler) Handle(content string) *Conversation {
 	conversation.ProjectName = projectName
 	inspectionDate := extractMatch(c.reInspectionDate, content)
 	conversation.InspectionDate = inspectionDate
+	dirExisStatus := extractMatch(c.reDirExisStatus, content)
+	conversation.DirExisStatus = dirExisStatus
 
 	matches := c.reCorpMessage.FindAllStringSubmatch(content, -1)
 
@@ -116,6 +121,9 @@ func checkCorpMessage(c *Conversation) bool {
 			log.Println("会话数异常!", m)
 			return true
 		}
+	}
+	if c.DirExisStatus == "true" {
+		return true
 	}
 	return false
 }
