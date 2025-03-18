@@ -122,7 +122,7 @@ func checkCorpMessage(c *Conversation) bool {
 			return true
 		}
 	}
-	if c.DirExisStatus == "true" {
+	if c.DirExisStatus == "false" {
 		return true
 	}
 	return false
