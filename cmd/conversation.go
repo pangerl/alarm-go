@@ -22,7 +22,7 @@ type Message struct {
 type Conversation struct {
 	ProjectName    string
 	InspectionDate string
-	DirExisStatus  string
+	DirExistStatus string
 	CorpMessage    []*Message
 }
 
@@ -30,14 +30,14 @@ type ConversationHandler struct {
 	reProjectName    *regexp.Regexp
 	reInspectionDate *regexp.Regexp
 	reCorpMessage    *regexp.Regexp
-	reDirExisStatus  *regexp.Regexp
+	reDirExistStatus *regexp.Regexp
 }
 
 func NewConversationHandler() *ConversationHandler {
 	return &ConversationHandler{
 		reProjectName:    regexp.MustCompile(`\*\*项目名称：.*>(.*?)</font>`),
 		reInspectionDate: regexp.MustCompile(`\*\*巡检时间：.*>(.*?)</font>`),
-		reDirExisStatus:  regexp.MustCompile(`\*\*数据目录状态.*>(.*?)</font>`),
+		reDirExistStatus: regexp.MustCompile(`\*\*数据目录状态.*>(.*?)</font>`),
 		reCorpMessage:    regexp.MustCompile(`> 企业名称：.*>(.*?)</font>\s*> 当前拉取会话数：.*>(\d+)</font>\s*> 昨天拉取会话数：.*>(\d+)</font>`),
 	}
 }
@@ -50,8 +50,8 @@ func (c *ConversationHandler) Handle(content string) *Conversation {
 	conversation.ProjectName = projectName
 	inspectionDate := extractMatch(c.reInspectionDate, content)
 	conversation.InspectionDate = inspectionDate
-	dirExisStatus := extractMatch(c.reDirExisStatus, content)
-	conversation.DirExisStatus = dirExisStatus
+	dirExistStatus := extractMatch(c.reDirExistStatus, content)
+	conversation.DirExistStatus = dirExistStatus
 
 	matches := c.reCorpMessage.FindAllStringSubmatch(content, -1)
 
@@ -99,8 +99,8 @@ func checkConversationData(c *Conversation, pgClient *pgx.Conn) {
 
 	if checkCorpMessage(c) {
 		// 查询项目运维
-		operationer := selectProjectOperationer(pgClient, selectProjectId(pgClient, c.ProjectName))
-		toList := getToList(operationer)
+		operation := selectProjectOperation(pgClient, selectProjectId(pgClient, c.ProjectName))
+		toList := getToList(operation)
 		var builder strings.Builder
 		// 构建邮件内容
 		builder.WriteString(conversationMailHead)
@@ -122,7 +122,7 @@ func checkCorpMessage(c *Conversation) bool {
 			return true
 		}
 	}
-	if c.DirExisStatus == "false" {
+	if c.DirExistStatus == "false" {
 		return true
 	}
 	return false

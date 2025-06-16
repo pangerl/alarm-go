@@ -120,8 +120,8 @@ func checkDorisData(d *Doris, pgClient *pgx.Conn) {
 	}
 	if isAlert {
 		// 查询项目运维
-		operationer := selectProjectOperationer(pgClient, selectProjectId(pgClient, d.ProjectName))
-		toList := getToList(operationer)
+		operation := selectProjectOperation(pgClient, selectProjectId(pgClient, d.ProjectName))
+		toList := getToList(operation)
 		var builder strings.Builder
 		// 构建邮件内容
 		builder.WriteString(dorisMailHead)

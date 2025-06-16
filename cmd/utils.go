@@ -80,15 +80,15 @@ func selectProjectId(pgClient *pgx.Conn, projectName string) int {
 	return projectId
 }
 
-func selectProjectOperationer(pgClient *pgx.Conn, projectId int) string {
-	var operationer string
+func selectProjectOperation(pgClient *pgx.Conn, projectId int) string {
+	var operation string
 	query := "SELECT operationer FROM public.qw_project_member WHERE project_id = $1;"
-	err := pgClient.QueryRow(context.Background(), query, projectId).Scan(&operationer)
+	err := pgClient.QueryRow(context.Background(), query, projectId).Scan(&operation)
 	if err != nil {
 		log.Println("查询项目运维失败:", err)
 		return "蓝胖"
 	}
-	return operationer
+	return operation
 }
 
 func loadConfig(cfgFile string) (*CfgType, error) {

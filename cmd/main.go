@@ -14,15 +14,15 @@ import (
 
 func (alarm *Alarm) gather(queryTime string, config libs.DB) {
 
-	// 创建 mysqlClinet
-	mysqlClinet, err := libs.NewMysqlClient(config, "wshoto")
+	// 创建 mysqlClient
+	mysqlClient, err := libs.NewMysqlClient(config, "wshoto")
 	if err != nil {
 		log.Println("Failed to create mysql client. err:", err)
 		return
 	}
 	defer func() {
-		if mysqlClinet != nil {
-			err := mysqlClinet.Close()
+		if mysqlClient != nil {
+			err := mysqlClient.Close()
 			if err != nil {
 				return
 			}
@@ -37,7 +37,7 @@ func (alarm *Alarm) gather(queryTime string, config libs.DB) {
 	WHERE
 		msgtime > ?`
 
-	rows, err := mysqlClinet.Query(query, queryTime)
+	rows, err := mysqlClient.Query(query, queryTime)
 	if err != nil {
 		log.Println("数据查询失败. err:", err)
 	}
@@ -121,7 +121,7 @@ func Execute() {
 	}
 	alarm.gather(queryTime, cfg.Doris)
 
-	// 创建 pgclient
+	// 创建 pgClient
 	pgClient, err := libs.NewPGClient(cfg.PG, "pomp")
 	alarm.PGClient = pgClient
 	if err != nil {
